@@ -1,0 +1,64 @@
+plugins {
+    id 'java'
+    id 'antlr'
+    id 'application'
+}
+
+group = 'org.example'
+version = '1.0-SNAPSHOT'
+
+generateGrammarSource {
+    arguments += ["-visitor", "-no-listener"]
+    outputDirectory = file("src/main/antlr")
+}
+build {
+    dependsOn generateGrammarSource
+}
+
+sourceSets {
+    main {
+
+        java {
+            srcDirs = ['src/main']
+        }
+        antlr {
+            srcDirs = ['src/main/antlr']
+        }
+    }
+    test{
+        java {
+            srcDirs = ['src/test']
+        }
+
+    }
+}
+
+application {
+    // Replace 'com.example.MainClass' with the fully qualified name of your main class
+    mainClassName = 'main.java.Main'
+}
+
+jar {
+    manifest {
+        attributes(
+                'Main-Class': 'main.java.Main'
+        )
+    }
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.9.1')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    antlr "org.antlr:antlr4:4.5.3"
+}
+
+test {
+    useJUnitPlatform()
+}
